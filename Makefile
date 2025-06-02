@@ -54,44 +54,53 @@ MAINMODULE=MicroHs.Main
 all:	bin/mhs bin/cpphs bin/mcabal
 
 newmhs:	ghcgen targets.conf
-	$(CCEVAL) generated/mhs.c $(CCLIBS) -o bin/mhs
-	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) -g $(RTSINC) $(RTS)/eval.c $(MAINC) generated/mhs.c $(CCLIBS) -o bin/mhsgdb
+	./mknodestub.sh bin/mhs
+	$(CCEVAL) generated/mhs.c $(CCLIBS) -o bin/mhs$(EXEEXT)
+	./mknodestub.sh bin/mhsgdb
+	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) -g $(RTSINC) $(RTS)/eval.c $(MAINC) generated/mhs.c $(CCLIBS) -o bin/mhsgdb$(EXEEXT)
 
 newmhsz:	newmhs
 	rm generated/mhs.c
 	$(MAKE) generated/mhs.c
 
 sanitizemhs:	ghcgen targets.conf
-	$(CCEVAL) $(CCSANITIZE) generated/mhs.c $(CCLIBS) -o bin/mhssane
+	./mknodestub.sh bin/mhssane
+	$(CCEVAL) $(CCSANITIZE) generated/mhs.c $(CCLIBS) -o bin/mhssane$(EXEEXT)
 
 # Compile mhs from distribution, with C compiler
 bin/mhs:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h targets.conf #generated/mhs.c
 	@mkdir -p bin
-	$(CCEVAL) generated/mhs.c $(CCLIBS) -o bin/mhs
+	./mknodestub.sh bin/mhs
+	$(CCEVAL) generated/mhs.c $(CCLIBS) -o bin/mhs$(EXEEXT)
 
 # Compile cpphs from distribution, with C compiler
 bin/cpphs:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h #generated/cpphs.c
 	@mkdir -p bin
-	$(CCEVAL) generated/cpphs.c $(CCLIBS) -o bin/cpphs
+	./mknodestub.sh bin/cpphs
+	$(CCEVAL) generated/cpphs.c $(CCLIBS) -o bin/cpphs$(EXXEEXT)
 
 # Compile mcabal from distribution, with C compiler
 bin/mcabal:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h #generated/mcabal.c
 	@mkdir -p bin
-	$(CCEVAL) generated/mcabal.c $(CCLIBS) -o bin/mcabal
+	./mknodestub.sh bin/mcabal
+	$(CCEVAL) generated/mcabal.c $(CCLIBS) -o bin/mcabal$(EXEEXT)
 
 # Compile combinator evaluator
 bin/mhseval:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h
 	@mkdir -p bin
-	$(CCEVAL) $(RTS)/comb.c $(CCLIBS) -o bin/mhseval
-	size bin/mhseval
+	./mknodestub.sh bin/mhseval
+	$(CCEVAL) $(RTS)/comb.c $(CCLIBS) -o bin/mhseval$(EXEEXT)
+	size bin/mhseval$(EXEEXT)
 
 bin/mhsevalgdb:	$(RTS)/*.c $(RTS)/*/*.h
 	@mkdir -p bin
-	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) $(RTSINC) -g $(RTS)/eval.c $(RTS)/comb.c $(MAINC) $(CCLIBS) -o bin/mhsevalgdb
+	./mknodestub.sh bin/mhsevalgdb
+	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) $(RTSINC) -g $(RTS)/eval.c $(RTS)/comb.c $(MAINC) $(CCLIBS) -o bin/mhsevalgdb$(EXEEXT)
 
 bin/mhsevalsane:	$(RTS)/*.c $(RTS)/*/*.h
 	@mkdir -p bin
-	$(CCEVAL) $(CCSANITIZE) $(RTSINC) $(RTS)/comb.c $(CCLIBS) -o bin/mhsevalsane
+	./mknodestub.sh bin/mhsevalsane
+	$(CCEVAL) $(CCSANITIZE) $(RTSINC) $(RTS)/comb.c $(CCLIBS) -o bin/mhsevalsane$(EXEEXT)
 
 # Compile mhs with ghc
 bin/gmhs:	src/*/*.hs ghc/*.hs ghc/*/*.hs ghc/*/*/*.hs
@@ -127,6 +136,7 @@ mhs.js:	src/*/*.hs $(RTS)/*.h $(RTS)/*/*.h targets.conf
 # Make sure boottrapping works
 bootstrap:	bin/mhs-stage2
 	@echo "*** copy stage2 to bin/mhs"
+	cp bin/mhs-stage2$(EXEEXT) bin/mhs$(EXEEXT)
 	cp bin/mhs-stage2 bin/mhs
 	cp generated/mhs-stage2.c generated/mhs.c 
 
@@ -135,7 +145,8 @@ bin/mhs-stage1:	bin/mhs src/*/*.hs
 	@mkdir -p generated
 	@echo "*** Build stage1 compiler, using bin/mhs"
 	bin/mhs -z $(MHSINC) $(MAINMODULE) -ogenerated/mhs-stage1.c
-	$(CCEVAL) generated/mhs-stage1.c $(CCLIBS) -o bin/mhs-stage1
+	./mknodestub.sh bin/mhs-stage1
+	$(CCEVAL) generated/mhs-stage1.c $(CCLIBS) -o bin/mhs-stage1$(EXEEXT)
 
 # Build stage2 compiler with stage1 compiler, and compare
 bin/mhs-stage2:	bin/mhs-stage1 src/*/*.hs
@@ -144,7 +155,8 @@ bin/mhs-stage2:	bin/mhs-stage1 src/*/*.hs
 	bin/mhs-stage1 -z $(MHSINC) $(MAINMODULE) -ogenerated/mhs-stage2.c
 	cmp generated/mhs-stage1.c generated/mhs-stage2.c
 	@echo "*** stage2 equal to stage1"
-	$(CCEVAL) generated/mhs-stage2.c $(CCLIBS) -o bin/mhs-stage2
+	./mknodestub.sh bin/mhs-stage2
+	$(CCEVAL) generated/mhs-stage2.c $(CCLIBS) -o bin/mhs-stage2$(EXEEXT)
 
 # Fetch cpphs submodule
 cpphssrc/malcolm-wallace-universe/.git:
@@ -288,7 +300,8 @@ BASEMODULES=Control.Applicative Control.Arrow Control.Category Control.DeepSeq C
 $(MCABALBIN)/mhs: bin/mhs $(RTS)/*.[ch] targets.conf $(MDIST)/Paths_MicroHs.hs
 	@mkdir -p $(MCABALBIN)
 	@mkdir -p $(MDIST)
-	bin/mhs -z $(MHSINCNP) -i$(MDIST) $(MAINMODULE) -o$(MCABALBIN)/mhs
+	./mknodestub.sh $(MCABALBIN)/mhs
+	bin/mhs -z $(MHSINCNP) -i$(MDIST) $(MAINMODULE) -o$(MCABALBIN)/mhs$(EXEEXT)
 	@mkdir -p $(MRUNTIME)
 	cp targets.conf $(MDATA)
 	cp -r $(RTS)/* $(MRUNTIME)
@@ -299,10 +312,12 @@ $(MDIST)/Paths_MicroHs.hs:
 
 $(MCABALBIN)/cpphs: bin/cpphs
 	@mkdir -p $(MCABALBIN)
+	cp bin/cpphs$(EXEEXT) $(MCABALBIN)
 	cp bin/cpphs $(MCABALBIN)
 
 $(MCABALBIN)/mcabal: bin/mcabal
 	@mkdir -p $(MCABALBIN)
+	cp bin/mcabal$(EXEEXT) $(MCABALBIN)
 	cp bin/mcabal $(MCABALBIN)
 
 $(MCABALMHS)/packages/$(BASE).pkg: bin/mhs lib/*.hs lib/*/*.hs lib/*/*/*.hs
@@ -334,6 +349,7 @@ installmsg:
 	@echo ''
 
 minstall:	bin/cpphs bin/mcabal $(MCABALBIN)/mhs machdep
+	cp bin/cpphs$(EXEEXT) bin/mcabal$(EXEEXT) $(MCABALBIN)
 	cp bin/cpphs bin/mcabal $(MCABALBIN)
 	cd lib; PATH=$(MCABALBIN):"$$PATH" mcabal $(MCABALGMP) install
 # We don't really need to rebuild mhs
@@ -341,7 +357,8 @@ minstall:	bin/cpphs bin/mcabal $(MCABALBIN)/mhs machdep
 	@echo $$PATH | tr ':' '\012' | grep -q $(MCABALBIN) || echo '***' Add $(MCABALBIN) to the PATH
 
 machdep:
-	$(CC) Tools/machdep.c -o machdep.exe && ./machdep.exe > $(RTS)/MachDeps.h && rm machdep.exe
+	./mknodestub.sh machdep
+	$(CC) Tools/machdep.c -o machdep$(EXEEXT) && ./machdep > $(RTS)/MachDeps.h && rm machdep machdep$(EXEEXT)
 
 #####
 # Hugs
