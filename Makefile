@@ -56,44 +56,53 @@ targets.conf:
 	echo conf = \"$(CONF)\" >> targets.conf
 
 newmhs:	ghcgen targets.conf
-	$(CCEVAL) generated/mhs.c -o bin/mhs
-	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) -g -Isrc/runtime src/runtime/eval-$(CONF).c $(CCLIBS) generated/mhs.c -o bin/mhsgdb
+	./mknodestub.sh bin/mhs
+	$(CCEVAL) generated/mhs.c -o bin/mhs$(EXEEXT)
+	./mknodestub.sh bin/mhsgdb
+	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) -g -Isrc/runtime src/runtime/eval-$(CONF).c $(CCLIBS) generated/mhs.c -o bin/mhsgdb$(EXEEXT)
 
 newmhsz:	newmhs
 	rm generated/mhs.c
 	make generated/mhs.c
 
 sanitizemhs:	ghcgen targets.conf
-	$(CCEVAL) $(CCSANITIZE) generated/mhs.c -o bin/mhssane
+	./mknodestub.sh bin/mhssane
+	$(CCEVAL) $(CCSANITIZE) generated/mhs.c -o bin/mhssane$(EXEXT)
 
 # Compile mhs from distribution, with C compiler
 bin/mhs:	src/runtime/*.c src/runtime/*.h targets.conf #generated/mhs.c
 	@mkdir -p bin
-	$(CCEVAL) generated/mhs.c -o bin/mhs
+	./mknodestub.sh bin/mhs
+	$(CCEVAL) generated/mhs.c -o bin/mhs$(EXEEXT)
 
 # Compile cpphs from distribution, with C compiler
 bin/cpphs:	src/runtime/*.c src/runtime/config*.h #generated/cpphs.c
 	@mkdir -p bin
-	$(CCEVAL) generated/cpphs.c -o bin/cpphs
+	./mknodestub.sh bin/cpphs
+	$(CCEVAL) generated/cpphs.c -o bin/cpphs$(EXEEXT)
 
 # Compile mcabal from distribution, with C compiler
 bin/mcabal:	src/runtime/*.c src/runtime/config*.h #generated/mcabal.c
 	@mkdir -p bin
-	$(CCEVAL) generated/mcabal.c -o bin/mcabal
+	./mknodestub.sh bin/mcabal
+	$(CCEVAL) generated/mcabal.c -o bin/mcabal$(EXEEXT)
 
 # Compile combinator evaluator
 bin/mhseval:	src/runtime/*.c src/runtime/config*.h
 	@mkdir -p bin
-	$(CCEVAL) src/runtime/comb.c -o bin/mhseval
-	size bin/mhseval
+	./mknodestub.sh bin/mhseval
+	$(CCEVAL) src/runtime/comb.c -o bin/mhseval$(EXEEXT)
+	size bin/mhseval$(EXEEXT)
 
 bin/mhsevalgdb:	src/runtime/*.c src/runtime/config*.h
 	@mkdir -p bin
-	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) -g src/runtime/eval-$(CONF).c $(CCLIBS) src/runtime/comb.c -o bin/mhsevalgdb
+	./mknodestub.sh bin/mhsevalgdb
+	$(CC) $(CCWARNS) $(MHSGMPCCFLAGS) -g src/runtime/eval-$(CONF).c $(CCLIBS) src/runtime/comb.c -o bin/mhsevalgdb$(EXEEXT)
 
 bin/mhsevalsane:	src/runtime/*.c src/runtime/config*.h
 	@mkdir -p bin
-	$(CCEVAL) $(CCSANITIZE) src/runtime/comb.c -o bin/mhsevalsane
+	./mknodestub.sh bin/mhsevalsane
+	$(CCEVAL) $(CCSANITIZE) src/runtime/comb.c -o bin/mhsevalsane$(EXEEXT)
 
 # Compile mhs with ghc
 bin/gmhs:	src/*/*.hs ghc/*.hs ghc/*/*.hs ghc/*/*/*.hs
@@ -129,6 +138,7 @@ mhs.js:	src/*/*.hs src/runtime/*.[ch] targets.conf
 # Make sure boottrapping works
 bootstrap:	bin/mhs-stage2
 	@echo "*** copy stage2 to bin/mhs"
+	cp bin/mhs-stage2$(EXEEXT) bin/mhs$(EXEEXT)
 	cp bin/mhs-stage2 bin/mhs
 	cp generated/mhs-stage2.c generated/mhs.c 
 
@@ -137,7 +147,8 @@ bin/mhs-stage1:	bin/mhs src/*/*.hs
 	@mkdir -p generated
 	@echo "*** Build stage1 compiler, using bin/mhs"
 	bin/mhs -z $(MHSINC) $(MAINMODULE) -ogenerated/mhs-stage1.c
-	$(CCEVAL) generated/mhs-stage1.c -o bin/mhs-stage1
+	./mknodestub.sh bin/mhs-stage1
+	$(CCEVAL) generated/mhs-stage1.c -o bin/mhs-stage1$(EXEEXT)
 
 # Build stage2 compiler with stage1 compiler, and compare
 bin/mhs-stage2:	bin/mhs-stage1 src/*/*.hs
@@ -146,7 +157,8 @@ bin/mhs-stage2:	bin/mhs-stage1 src/*/*.hs
 	bin/mhs-stage1 -z $(MHSINC) $(MAINMODULE) -ogenerated/mhs-stage2.c
 	cmp generated/mhs-stage1.c generated/mhs-stage2.c
 	@echo "*** stage2 equal to stage1"
-	$(CCEVAL) generated/mhs-stage2.c -o bin/mhs-stage2
+	./mknodestub.sh bin/mhs-stage2
+	$(CCEVAL) generated/mhs-stage2.c -o bin/mhs-stage2$(EXEEXT)
 
 # Fetch cpphs submodule
 cpphssrc/malcolm-wallace-universe/.git:
@@ -176,7 +188,7 @@ runtestgsan: bin/mhsevalsane bin/gmhs
 
 # Run test examples going via JavaScript
 runtestemscripten: bin/mhseval bin/mhs bin/cpphs
-	cd tests; make MHS=../bin/mhs cache; MHSDIR=.. make MHS="../bin/mhs -CR -temscripten -oout.js" EVAL="node out.js" info test errtest
+	cd tests; make MHS="../bin/mhs" cache; MHSDIR=.. make MHS="../bin/mhs -CR -temscripten -oout.js" EVAL="node out.js" info test errtest
 
 
 # Compress the binary (broken on MacOS)
@@ -286,7 +298,8 @@ BASEMODULES=Control.Applicative Control.Arrow Control.Category Control.DeepSeq C
 $(MCABALBIN)/mhs: bin/mhs src/runtime/*.[ch] targets.conf $(MDIST)/Paths_MicroHs.hs
 	@mkdir -p $(MCABALBIN)
 	@mkdir -p $(MDIST)
-	bin/mhs -z $(MHSINCNP) -i$(MDIST) $(MAINMODULE) -o$(MCABALBIN)/mhs
+	./mknodestub.sh $(MCABALBIN)/mhs
+	bin/mhs -z $(MHSINCNP) -i$(MDIST) $(MAINMODULE) -o$(MCABALBIN)/mhs$(EXEEXT)
 	@mkdir -p $(MRUNTIME)
 	cp targets.conf $(MDATA)
 	cp src/runtime/*.[ch] $(MRUNTIME)
@@ -297,10 +310,12 @@ $(MDIST)/Paths_MicroHs.hs:
 
 $(MCABALBIN)/cpphs: bin/cpphs
 	@mkdir -p $(MCABALBIN)
+	cp bin/cpphs$(EXEEXT) $(MCABALBIN)
 	cp bin/cpphs $(MCABALBIN)
 
 $(MCABALBIN)/mcabal: bin/mcabal
 	@mkdir -p $(MCABALBIN)
+	cp bin/mcabal$(EXEEXT) $(MCABALBIN)
 	cp bin/mcabal $(MCABALBIN)
 
 $(MCABALMHS)/packages/$(BASE).pkg: bin/mhs lib/*.hs lib/*/*.hs lib/*/*/*.hs
@@ -332,6 +347,7 @@ installmsg:
 	@echo ''
 
 minstall:	bin/cpphs bin/mcabal $(MCABALBIN)/mhs
+	cp bin/cpphs$(EXEEXT) bin/mcabal$(EXEEXT) $(MCABALBIN)
 	cp bin/cpphs bin/mcabal $(MCABALBIN)
 	cd lib; PATH=$(MCABALBIN):"$$PATH" mcabal $(MCABALGMP) install
 # We don't really need to rebuild mhs
