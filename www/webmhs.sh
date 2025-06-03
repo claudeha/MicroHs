@@ -1,11 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 set -ev
-npm -i
-patch -p2 -N < require.js.patch
-( cd node_modules/inherits/inherits_browser/ && ln -s ../inherits_browser.js )
-( cd node_modules/process/ && ln -s browser.js process.js )
-( mkdir -p node_modules/util/support/isBuffer/ && cd node_modules/util/support/isBuffer/ && ln -s ../isBufferBrowser.js )
+npm install
+patch -p2 -N < require.js.patch || echo "ignored"
+( mkdir -p node_modules/inherits/inherits_browser/ && cd node_modules/inherits/inherits_browser/ && ln -fs ../inherits_browser.js )
+( cd node_modules/process/ && ln -fs browser.js process.js )
+( mkdir -p node_modules/util/support/isBuffer/ && cd node_modules/util/support/isBuffer/ && ln -fs ../isBufferBrowser.js )
+( git clone https://github.com/emscripten-core/emsdk.git || (cd emsdk && git pull) )
+( cd emsdk && ./emsdk install latest && ./emsdk activate latest )
+. "$(pwd)/emsdk/emsdk_env.sh"
 EMCC_CFLAGS="-s ALLOW_MEMORY_GROWTH -s TOTAL_STACK=5MB -s NODERAWFS -s SINGLE_FILE -DUSE_SYSTEM_RAW" emmake make -C .. clean install EXEEXT=.js
+PATH="${PATH}:/home/web_user/.mcabal/bin"
 ( mcabal install transformers )
 ( git clone https://github.com/augustss/mtl.git || (cd mtl && git pull) )
 ( cd mtl && mcabal install )
