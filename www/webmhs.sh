@@ -4,7 +4,7 @@ npm install
 patch -p2 -N < require.js.patch || echo "ignored"
 ( mkdir -p node_modules/inherits/inherits_browser/ && cd node_modules/inherits/inherits_browser/ && ln -fs ../inherits_browser.js )
 ( cd node_modules/process/ && ln -fs browser.js process.js )
-( mkdir -p node_modules/util/support/isBuffer/ && cd node_modules/util/support/isBuffer/ && ln -fs ../isBufferBrowser.js )
+( mkdir -p node_modules/util/support/isBuffer/ && cd node_modules/util/support/isBuffer/ && ln -fs ../isBufferBrowser.js isBuffer.js )
 ( git clone https://github.com/emscripten-core/emsdk.git || (cd emsdk && git pull) )
 ( cd emsdk && ./emsdk install latest && ./emsdk activate latest )
 . "$(pwd)/emsdk/emsdk_env.sh"
