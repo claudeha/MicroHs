@@ -75,6 +75,10 @@ bin/mhs:	src/runtime/*.c src/runtime/*.h targets.conf #generated/mhs.c
 	./mknodestub.sh bin/mhs
 	$(CCEVAL) generated/mhs.c -o bin/mhs$(EXEEXT)
 
+www/mhs.html:	src/runtime/*.c src/runtime/*.h targets.conf #generated/mhs.c
+	@mkdir -p www
+	$(CCEVAL) generated/mhs.c -o www/mhs.html --preload-file $(HOME)/.mcabal/mhs-0.13.0.0/@/home/web_user/.mcabal/mhs-0.13.0.0/
+
 # Compile cpphs from distribution, with C compiler
 bin/cpphs:	src/runtime/*.c src/runtime/config*.h #generated/cpphs.c
 	@mkdir -p bin
