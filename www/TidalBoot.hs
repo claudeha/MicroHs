@@ -28,15 +28,15 @@ module TidalBoot
 , module    Sound.Tidal.Utils
 ) where
 -- containers
-import Data.Map
+import Data.Map()
 -- transformers
-import Control.Monad.Trans.Writer
+import Control.Monad.Trans.Writer()
 -- mtl
-import Control.Monad.Writer
+import Control.Monad.Writer()
 -- parsec
-import Text.Parsec
+import Text.Parsec()
 -- colour
-import Data.Colour
+import Data.Colour()
 -- tidal-core
 import    Sound.Tidal.Bjorklund
 import    Sound.Tidal.Chords
