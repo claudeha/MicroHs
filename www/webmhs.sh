@@ -18,7 +18,7 @@ PATH="${PATH}:/home/web_user/.mcabal/bin"
 ( git clone https://github.com/augustss/parsec.git || (cd parsec && git pull) )
 ( cd parsec && mcabal install )
 ( mcabal update && mcabal install colour )
-( git clone -b topic-microhs-compat https://github.com/claudeha/Tidal.git || (cd Tidal && git pull) )
+( git clone -b topic-microhs-compat https://codeberg.org/mathr/tidal.git || (cd tidal && git pull) )
 ( cd Tidal/tidal-core && mcabal install )
 EMCC_CFLAGS="-s ALLOW_MEMORY_GROWTH -s TOTAL_STACK=5MB -DUSE_SYSTEM_RAW" emmake make -C .. EXEEXT=.js www/mhs.html
 python3 -m http.server 8080 &
