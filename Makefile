@@ -75,11 +75,7 @@ bin/mhs:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h targets.conf #generated/mhs.c
 
 www/mhs.html:	src/runtime/*.c src/runtime/*.h targets.conf #generated/mhs.c
 	@mkdir -p www
-	$(CCEVAL) generated/mhs.c -o www/mhs.html --preload-file $(HOME)/.mcabal/mhs-0.13.0.0/@/home/web_user/.mcabal/mhs-0.13.0.0/ --preload-file www/TidalBoot.hs@TidalBoot.hs
-
-www/mhs.html:	src/runtime/*.c src/runtime/*.h targets.conf #generated/mhs.c
-	@mkdir -p www
-	$(CCEVAL) generated/mhs.c -o www/mhs.html --preload-file $(HOME)/.mcabal/mhs-0.13.0.0/@/home/web_user/.mcabal/mhs-0.13.0.0/
+	$(CCEVAL) generated/mhs.c -o www/mhs.html --preload-file $(HOME)/.mcabal/mhs-$(VERSION)/@/home/web_user/.mcabal/mhs-$(VERSION)/ --preload-file www/TidalBoot.hs@TidalBoot.hs
 
 # Compile cpphs from distribution, with C compiler
 bin/cpphs:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h #generated/cpphs.c
