@@ -81,7 +81,7 @@ www/mhs.html:	src/runtime/*.c src/runtime/*.h targets.conf #generated/mhs.c
 bin/cpphs:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h #generated/cpphs.c
 	@mkdir -p bin
 	./mknodestub.sh bin/cpphs
-	$(CCEVAL) generated/cpphs.c $(CCLIBS) -o bin/cpphs$(EXXEEXT)
+	$(CCEVAL) generated/cpphs.c $(CCLIBS) -o bin/cpphs$(EXEEXT)
 
 # Compile mcabal from distribution, with C compiler
 bin/mcabal:	$(RTS)/*.c $(RTS)/*.h $(RTS)/*/*.h #generated/mcabal.c
@@ -305,7 +305,7 @@ $(MCABALBIN)/mhs: bin/mhs $(RTS)/*.[ch] targets.conf $(MDIST)/Paths_MicroHs.hs
 	@mkdir -p $(MCABALBIN)
 	@mkdir -p $(MDIST)
 	./mknodestub.sh $(MCABALBIN)/mhs
-	bin/mhs -z $(MHSINCNP) -i$(MDIST) $(MAINMODULE) -o$(MCABALBIN)/mhs$(EXEEXT)
+	bin/mhs -z $(MHSINCNP) -i$(MDIST) $(MAINMODULE) -temscripten -o$(MCABALBIN)/mhs$(EXEEXT)
 	@mkdir -p $(MRUNTIME)
 	cp targets.conf $(MDATA)
 	cp -r $(RTS)/* $(MRUNTIME)
