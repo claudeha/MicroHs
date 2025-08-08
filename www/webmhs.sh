@@ -21,5 +21,7 @@ PATH="${PATH}:/home/web_user/.mcabal/bin"
 ( git clone -b topic-microhs-compat https://codeberg.org/mathr/tidal.git || (cd tidal && git pull) )
 ( cd Tidal/tidal-core && mcabal install )
 EMCC_CFLAGS="-s ALLOW_MEMORY_GROWTH -s TOTAL_STACK=5MB -DUSE_SYSTEM_RAW" emmake make -C .. EXEEXT=.js www/mhs.html
-python3 -m http.server 8080 &
+( rm -rf webmhs && mkdir -p webmhs && cp -avit webmhs/ index.html mhs.data mhs.js mhs.wasm node_modules && find webmhs -type f -exec gzip -9 -k {} \; )
+( tar --create --verbose --bzip --file webmhs.tbz webmhs )
+( cd webmhs && python3 -m http.server 8080 & )
 firefox http://localhost:8080

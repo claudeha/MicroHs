@@ -17,11 +17,17 @@
     </style>
   </head>
   <body>
+    <h1>MicroHs</h1>
+    <h2>WebMHs with tidal-core</h2>
     <div class=spinner id=spinner></div>
     <div class=emscripten id=status>Downloading...</div>
     <div class=emscripten><progress hidden id=progress max=100 value=0></progress></div>
     <div class=emscripten_border><canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas></div>
     <textarea id=output rows=8></textarea>
+    <p>Quick start: <code>import TidalBoot</code> followed by <code>fast 4 $ s "a [b c]"</code>, and inspect browser console.</p>
+    <p>Future work: improve the REPL, integrate an event scheduler, add a sound synthesis engine, ...</p>
+    <p>This version: <a href="https://github.com/claudeha/MicroHs/tree/webmhs/www">github.com/claudeha/MicroHs/tree/webmhs/www</a></p>
+    <p>Upstream version: <a href="https://github.com/augustss/MicroHs">github.com/augustss/MicroHs</a></p>
     <script src="node_modules/@tarp/require/require.js"></script>
     <script>
       self.Tarp.require({expose: true});
